@@ -1,13 +1,13 @@
 //بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
-
+using UnityEngine;
 using System.Xml;
 using System.Collections.Generic;
 namespace QuranApp
 {
     static class Data
     {
-        public static string PathToQuranWithoutTashkeel = System.IO.Directory.GetCurrentDirectory() + "/Text/quran-simple-clean.xml";
-        public static string PathToQuranWithTashkeel = System.IO.Directory.GetCurrentDirectory() + "/Text/quran-simple.xml";
+        public static string PathToQuranWithoutTashkeel;// = Application.persistentDataPath + "/Text/quran-simple-clean.xml";
+        public static string PathToQuranWithTashkeel;// = Application.persistentDataPath + "/Text/quran-simple.xml";
         public static List<Sura> QuranWithTashkeel, QuranWithoutTashkeel;// = new List<Sura>();
         public static void Init()
         {

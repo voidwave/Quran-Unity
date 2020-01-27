@@ -7,63 +7,140 @@ using System.IO;
 using System.Collections.Generic;
 namespace QuranApp
 {
-    class Main : MonoBehaviour
+    public class Main : MonoBehaviour
     {
         int MAXPAGE = 620;
         public int CurrentPageNumber = 1;
         public Image CurrentPage, NextPage;
+        public RectTransform CurrentPageRectTransform;
+        public Toggle invertToggleUI;
+        public Material NormalMat, InvertMat;
+        public GameObject SettingsWindow;
+        public Transform NavParent;
         private Rect rect;
         private Vector2 pivot;
         void Start()
         {
+            Debug.Log("بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ");
+            SettingsWindow.SetActive(false);
+            path = Application.persistentDataPath + "/Quran_Arabic_Pages_2/";
+            //Data.PathToQuranWithoutTashkeel = Application.persistentDataPath + "/Text/quran-simple-clean.xml";
+            //Data.PathToQuranWithTashkeel = Application.persistentDataPath + "/Text/quran-simple.xml";
+
             pivot = CurrentPage.sprite.pivot;
             rect = CurrentPage.sprite.rect;
-            Debug.Log("بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ");
+
             //Initilize Quran Text from XML
-            Data.Init();
-            Debug.Log($"Quran Sura Count: {Data.QuranWithTashkeel.Count}");
+            //Data.Init();
+            //Debug.Log($"Quran Sura Count: {Data.QuranWithTashkeel.Count}");
             //SelectSuraToPrint();
             //SearchForText();
             ////Download test
             ////QDownloader.DownloadAll(QDownloader.QuranArabicURL, 60, 63, QDownloader.QuranSaveToPath);
             //Console.ReadLine();
 
+            CurrentPageNumber = PlayerPrefs.GetInt("CurrentPage");
+            InvertToggle(PlayerPrefs.GetInt("Invert"));
+            invertToggleUI.isOn = PlayerPrefs.GetInt("Invert") == 1 ? true : false;
+            if (CurrentPageNumber < 1 || CurrentPageNumber > MAXPAGE)
+                CurrentPageNumber = 1;
+
+            LoadPage(CurrentPageNumber);
+            BuildSuraButtons.InitilizeUI(this, NavParent);
         }
         public void LoadNextPage()
         {
+
             if (CurrentPageNumber < MAXPAGE)
                 CurrentPageNumber++;
             LoadPage(CurrentPageNumber);
+
         }
         public void LoadPreviousPage()
         {
+
             if (CurrentPageNumber > 1)
                 CurrentPageNumber--;
             LoadPage(CurrentPageNumber);
         }
-        private string path = System.IO.Directory.GetCurrentDirectory() + "/Quran_Arabic_Pages_2/";
+
+        private string path;// = Application.persistentDataPath + "/Quran_Arabic_Pages_2/";
         public void LoadPage(int page)
         {
             string PageName = page.ToString("0000");
-            //DestroyImmediate(CurrentPage.sprite.texture, true);
-            CurrentPage.sprite = Sprite.Create(LoadPNG(path + PageName + ".jpg"), rect, pivot);
+
+            //load from file
+            //CurrentPage.sprite = Sprite.Create(LoadPNG(path + PageName + ".jpg"), rect, pivot);
+
+            //load from resources
+            CurrentPage.sprite = Sprite.Create(Resources.Load<Texture2D>("Quran_Arabic_Pages_2/" + PageName), rect, pivot);
             Resources.UnloadUnusedAssets();
-            //GC.Collect();
+            PlayerPrefs.SetInt("CurrentPage", CurrentPageNumber);
+
+            Vector3 tempPos = CurrentPageRectTransform.position;
+            tempPos.y -= 2000;
+            CurrentPageRectTransform.position = tempPos;
+
         }
 
-        public static Texture2D LoadPNG(string filePath)
+        public void SettingsToggle()
         {
-            Texture2D tex = null;
-            byte[] fileData;
-
-            if (File.Exists(filePath))
-            {
-                fileData = File.ReadAllBytes(filePath);
-                tex = new Texture2D(2, 2);
-                tex.LoadImage(fileData); //..this will auto-resize the texture dimensions.
-            }
-            return tex;
+            SettingsWindow.SetActive(!SettingsWindow.activeSelf);
         }
+        public void InvertToggle(bool toggle)
+        {
+            if (toggle)
+            {
+                CurrentPage.material = InvertMat;
+                PlayerPrefs.SetInt("Invert", 1);
+            }
+            else
+            {
+                CurrentPage.material = NormalMat;
+                PlayerPrefs.SetInt("Invert", 0);
+            }
+        }
+        public void InvertToggle(int toggle)
+        {
+            if (toggle == 1)
+                CurrentPage.material = InvertMat;
+            else
+                CurrentPage.material = NormalMat;
+        }
+
+        private int[] SuraPageNumbers = {
+            004,005,053,080,109,131,154,180,190,211,
+            224,238,252,258,264,270,285,296,308,315,
+            325,334,345,353,362,369,379,388,399,407,
+            414,418,421,431,437,443,448,455,461,470,
+            480,486,492,498,501,505,509,514,518,521,
+            523,526,529,531,534,537,540,545,548,552,
+            554,556,557,559,561,563,565,567,570,572,
+            574,576,579,581,583,585,587,589,590,592,
+            593,594,595,597,598,599,600,600,601,603,
+            603,604,605,605,606,606,607,607,608,608,
+            609,609,610,610,610,611,611,611,611,612,
+            612,612,613,613};
+        public void GotoSura(int SuraNumber)
+        {
+            //Debug.Log(SuraNumber);
+            SuraNumber--;
+            CurrentPageNumber = SuraPageNumbers[SuraNumber];
+            LoadPage(CurrentPageNumber);
+        }
+        // public static Texture2D LoadPNG(string filePath)
+        // {
+        //     Texture2D tex = null;
+        //     byte[] fileData;
+
+        //     if (File.Exists(filePath))
+        //     {
+        //         fileData = File.ReadAllBytes(filePath);
+        //         tex = new Texture2D(2, 2);
+        //         tex.LoadImage(fileData); //..this will auto-resize the texture dimensions.
+        //     }
+        //     return tex;
+        // }
         private static void SearchForText()
         {
             string inputText = "";
