@@ -1,0 +1,32 @@
+
+using System.Net.WebClient;
+
+using (var client = new WebClient())
+{
+    client.DownloadFile("http://example.com/file/song/a.mpeg", "a.mpeg");
+}
+
+Quran Arabic
+h2208 w1242
+https://images.qurancomplex.gov.sa/publications/07_wasat/h1024/png/iphone6plus/0001.png
+https://images.qurancomplex.gov.sa/publications/07_wasat/h1024/png/iphone6plus/0624.png
+
+مصحف شعبة
+https://images.qurancomplex.gov.sa/publications/q_30_shubah/550/jpg_90/0001.jpg
+
+التفسير الميسر
+https://images.qurancomplex.gov.sa/publications/tafseer_muyassar/h1024/png/0001.png
+https://images.qurancomplex.gov.sa/publications/tafseer_muyassar/h1024/png/0624.png
+
+كتاب الفقه الميّسر
+https://images.qurancomplex.gov.sa/publications/fiqh_muyassar/550/jpg_90/0001.jpg
+
+
+The Book of Dhikir English
+https://images.qurancomplex.gov.sa/publications/bk_thikr_wa_duaa_english/550/jpg_90/0001.jpg
+
+The Foundations of Faith English
+https://images.qurancomplex.gov.sa/publications/bk_osoul_eman_english/550/jpg_90/0001.jpg
+
+كتاب كتابة المصحف
+https://images.qurancomplex.gov.sa/publications/kitabat_almushaf/550/jpg_90/0001.jpg

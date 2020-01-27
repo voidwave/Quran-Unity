@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: bd1c0d745ddd0da49ac7640ace936937
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: KFGQPC Uthman Taha Naskh
+  fontNames:
+  - KFGQPC Uthman Taha Naskh
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
