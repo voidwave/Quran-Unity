@@ -19,6 +19,8 @@ namespace QuranApp
         public Transform NavParent;
         private Rect rect;
         private Vector2 pivot;
+        public Text PageNumberText;
+        //public DropDown RotationDropDown;
         void Start()
         {
             Debug.Log("بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ");
@@ -41,6 +43,9 @@ namespace QuranApp
 
             CurrentPageNumber = PlayerPrefs.GetInt("CurrentPage");
             InvertToggle(PlayerPrefs.GetInt("Invert"));
+            ToggleRotation(PlayerPrefs.GetInt("Orientation"));
+            //RotationDropDown.value = PlayerPrefs.GetInt("Orientation");
+
             invertToggleUI.isOn = PlayerPrefs.GetInt("Invert") == 1 ? true : false;
             if (CurrentPageNumber < 1 || CurrentPageNumber > MAXPAGE)
                 CurrentPageNumber = 1;
@@ -67,6 +72,7 @@ namespace QuranApp
         private string path;// = Application.persistentDataPath + "/Quran_Arabic_Pages_2/";
         public void LoadPage(int page)
         {
+            PageNumberText.text = (page - 2).ToString();
             string PageName = page.ToString("0000");
 
             //load from file
@@ -108,6 +114,24 @@ namespace QuranApp
                 CurrentPage.material = NormalMat;
         }
 
+        public void ToggleRotation(int orientation)
+        {
+            switch (orientation)
+            {
+                case 0:
+                    Screen.orientation = ScreenOrientation.AutoRotation;
+                    break;
+                case 1:
+                    Screen.orientation = ScreenOrientation.Portrait;
+                    break;
+                case 2:
+                    Screen.orientation = ScreenOrientation.Landscape;
+                    break;
+            }
+
+            PlayerPrefs.SetInt("Orientation", orientation);
+            //RotationDropDown.value = orientation;
+        }
         private int[] SuraPageNumbers = {
             004,005,053,080,109,131,154,180,190,211,
             224,238,252,258,264,270,285,296,308,315,
