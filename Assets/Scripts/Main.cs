@@ -9,7 +9,7 @@ namespace QuranApp
 {
     public class Main : MonoBehaviour
     {
-        int MAXPAGE = 620;
+        private int MAXPAGE = 620;
         public int CurrentPageNumber = 1;
         public Image CurrentPage, NextPage;
         public RectTransform CurrentPageRectTransform;
