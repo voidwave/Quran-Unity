@@ -21,6 +21,7 @@ namespace QuranApp
         private Vector2 pivot;
         public Text PageNumberText;
         //public DropDown RotationDropDown;
+
         void Start()
         {
             Debug.Log("بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ");
@@ -45,17 +46,76 @@ namespace QuranApp
             BuildSuraButtons.InitilizeUI(this, NavParent);
         }
 
+        private bool touching = false;
+        private Vector2 startTouchPos, endTouchPos;
+        private float touchTime = 0;
+        [SerializeField]
+        private float triggerTimeStart = 0.1f;
+        [SerializeField]
+        private float triggerTimeEnd = 0.4f;
+        void Update()
+        {
+            if (Input.GetMouseButton(0))
+            {
+                touchTime += Time.deltaTime;
+                if (!touching)
+                {
+                    touching = true;
+                    startTouchPos = Input.mousePosition;
+                    //Debug.Log($"Start Pos: {startTouchPos}");
+                }
+
+            }
+            else
+            {
+                if (touching)
+                {
+                    endTouchPos = Input.mousePosition;
+                    touching = false;
+                    //Debug.Log($"End Pos: {endTouchPos}");
+
+                    if (touchTime > triggerTimeStart && touchTime < triggerTimeEnd)
+                        SwipePage();
+
+                }
+                touchTime = 0;
+            }
+        }
+        private void SwipePage()
+        {
+            //from left to right
+            if (startTouchPos.x + 350 < endTouchPos.x)
+            {
+                LoadNextPage();
+            }
+            //from right to left
+            if (startTouchPos.x > endTouchPos.x + 350)
+            {
+                LoadPreviousPage();
+            }
+        }
         private void InitilizePrefs()
         {
-            CurrentPageNumber = PlayerPrefs.GetInt("CurrentPage");
+            //setting some settings for first time run
+            int firstTime = PlayerPrefs.GetInt("FirstTime");
+            if (firstTime != 114)
+            {
+                PlayerPrefs.SetInt("Invert", 1);
+                PlayerPrefs.SetInt("FirstTime", 114);
+            }
+
+            //load user settings
             InvertToggle(PlayerPrefs.GetInt("Invert"));
             ToggleRotation(PlayerPrefs.GetInt("Orientation"));
             //RotationDropDown.value = PlayerPrefs.GetInt("Orientation");
 
+            //adjust settings state in ui
             invertToggleUI.isOn = PlayerPrefs.GetInt("Invert") == 1 ? true : false;
+
+            //load last page viewed
+            CurrentPageNumber = PlayerPrefs.GetInt("CurrentPage");
             if (CurrentPageNumber < 1 || CurrentPageNumber > MAXPAGE)
                 CurrentPageNumber = 1;
-
             LoadPage(CurrentPageNumber);
         }
 

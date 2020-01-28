@@ -972,6 +972,8 @@ MonoBehaviour:
   SettingsWindow: {fileID: 1812551201}
   NavParent: {fileID: 1142903205}
   PageNumberText: {fileID: 1219721939}
+  triggerTimeStart: 0.1
+  triggerTimeEnd: 0.4
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -2047,7 +2049,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -146.7, y: 43.3}
+  m_AnchoredPosition: {x: -146.70001, y: 43.30005}
   m_SizeDelta: {x: 266.09998, y: 72.79999}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1251989605
