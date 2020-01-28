@@ -3,7 +3,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System;
-using System.IO;
+//using System.IO;
 using System.Collections.Generic;
 namespace QuranApp
 {
@@ -41,6 +41,12 @@ namespace QuranApp
             ////QDownloader.DownloadAll(QDownloader.QuranArabicURL, 60, 63, QDownloader.QuranSaveToPath);
             //Console.ReadLine();
 
+            InitilizePrefs();
+            BuildSuraButtons.InitilizeUI(this, NavParent);
+        }
+
+        private void InitilizePrefs()
+        {
             CurrentPageNumber = PlayerPrefs.GetInt("CurrentPage");
             InvertToggle(PlayerPrefs.GetInt("Invert"));
             ToggleRotation(PlayerPrefs.GetInt("Orientation"));
@@ -51,8 +57,8 @@ namespace QuranApp
                 CurrentPageNumber = 1;
 
             LoadPage(CurrentPageNumber);
-            BuildSuraButtons.InitilizeUI(this, NavParent);
         }
+
         public void LoadNextPage()
         {
 
