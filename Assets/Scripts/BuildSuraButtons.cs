@@ -11,8 +11,10 @@ namespace QuranApp
         //public GameObject SuraButtonPrefab;
 
         // Start is called before the first frame update
+        public static string[] SuraNames;
         public static void InitilizeUI(Main main, Transform NavParent)
         {
+            SuraNames = new string[114];
             int startSura = 93;
             //Debug.Log(int.Parse("A1", System.Globalization.NumberStyles.HexNumber));
             //Debug.Log(int.Parse("F1", System.Globalization.NumberStyles.HexNumber));
@@ -35,6 +37,7 @@ namespace QuranApp
                 uint utf32 = uint.Parse(startSura.ToString("X"), System.Globalization.NumberStyles.HexNumber);
                 string s = Encoding.Unicode.GetString(BitConverter.GetBytes(utf32));
                 sura.transform.GetChild(0).GetComponent<Text>().text = s;
+                SuraNames[i] = s;
                 startSura++;
 
 
@@ -46,7 +49,7 @@ namespace QuranApp
                 //Assign Button
                 sura.GetComponent<Button>().onClick.AddListener(delegate () { main.GotoSura(suraNumber); });
                 sura.GetComponent<Button>().onClick.AddListener(delegate () { main.SettingsToggle(); });
-                
+
 
             }
         }

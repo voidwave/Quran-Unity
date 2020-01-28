@@ -19,7 +19,7 @@ namespace QuranApp
         public Transform NavParent;
         private Rect rect;
         private Vector2 pivot;
-        public Text PageNumberText;
+        public Text PageNumberText, SuraNameText;
         //public DropDown RotationDropDown;
 
         void Start()
@@ -41,9 +41,9 @@ namespace QuranApp
             ////Download test
             ////QDownloader.DownloadAll(QDownloader.QuranArabicURL, 60, 63, QDownloader.QuranSaveToPath);
             //Console.ReadLine();
-
-            InitilizePrefs();
             BuildSuraButtons.InitilizeUI(this, NavParent);
+            InitilizePrefs();
+
         }
 
         private bool touching = false;
@@ -138,7 +138,11 @@ namespace QuranApp
         private string path;// = Application.persistentDataPath + "/Quran_Arabic_Pages_2/";
         public void LoadPage(int page)
         {
-            PageNumberText.text = (page - 2).ToString();
+            if (page > 2 && page < 614)
+                PageNumberText.text = (page - 2).ToString();
+            else
+                PageNumberText.text = "-";
+
             string PageName = page.ToString("0000");
 
             //load from file
@@ -153,6 +157,26 @@ namespace QuranApp
             tempPos.y -= 2000;
             CurrentPageRectTransform.position = tempPos;
 
+            //update sura name text
+            for (int i = 0; i < 114; i++)
+            {
+                if (CurrentPageNumber > 613 || CurrentPageNumber < 4)
+                {
+                    SuraNameText.text = "";
+                    break;
+                }
+
+                if (CurrentPageNumber == SuraPageNumbers[i])
+                {
+                    SuraNameText.text = BuildSuraButtons.SuraNames[i];
+                    break;
+                }
+                if (CurrentPageNumber > SuraPageNumbers[i] && CurrentPageNumber < SuraPageNumbers[i + 1])
+                {
+                    SuraNameText.text = BuildSuraButtons.SuraNames[i];
+                    break;
+                }
+            }
         }
 
         public void SettingsToggle()
@@ -217,6 +241,8 @@ namespace QuranApp
             SuraNumber--;
             CurrentPageNumber = SuraPageNumbers[SuraNumber];
             LoadPage(CurrentPageNumber);
+            SuraNameText.text = BuildSuraButtons.SuraNames[SuraNumber];
+
         }
         // public static Texture2D LoadPNG(string filePath)
         // {
