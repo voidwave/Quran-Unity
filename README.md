@@ -3,7 +3,7 @@
 
 Quran Unity Project version 2019.3.0f6
 
-![image](https://github.com/voidwave/Quran-Unity/blob/master/Demo1.jpg) ![image](https://github.com/voidwave/Quran-Unity/blob/master/Demo2.jpg)
+![image](https://github.com/voidwave/Quran-Unity/blob/master/Demo_1.jpg)   ![image](https://github.com/voidwave/Quran-Unity/blob/master/Demo_2.jpg)
 
 # Current Functions:
 
