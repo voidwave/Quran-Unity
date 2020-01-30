@@ -3,33 +3,40 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System;
-//using System.IO;
+using System.IO;
 using System.Collections.Generic;
+using System.IO.Compression;
+
 namespace QuranApp
 {
     public class Main : MonoBehaviour
     {
+
         private int MAXPAGE = 620;
         public int CurrentPageNumber = 1;
-        public Image CurrentPage, NextPage;
+        public Image CurrentPage, NextPage, ProgressBar;
         public RectTransform CurrentPageRectTransform;
         public Toggle invertToggleUI;
         public Material NormalMat, InvertMat;
-        public GameObject SettingsWindow;
+        public GameObject SettingsWindow, PreviousButtonGO, NextButtonGO, Downloader, DownloadButton;
         public Transform NavParent;
         private Rect rect;
         private Vector2 pivot;
-        public Text PageNumberText, SuraNameText;
-        //public DropDown RotationDropDown;
+        public Text PageNumberText, SuraNameText, DownloadText;//, DebugText;
+        public Color Green, Red;
+
+        public UnityEngine.UI.Dropdown RotationDropDown, NavDropDown;
 
         void Start()
         {
             Debug.Log("بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ");
+
+
             SettingsWindow.SetActive(false);
-            path = Application.persistentDataPath + "/Quran_Arabic_Pages_2/";
+            path = Application.persistentDataPath + "/Quran/750/jpg_90/";
+            //DebugText.text = path;
             //Data.PathToQuranWithoutTashkeel = Application.persistentDataPath + "/Text/quran-simple-clean.xml";
             //Data.PathToQuranWithTashkeel = Application.persistentDataPath + "/Text/quran-simple.xml";
-
             pivot = CurrentPage.sprite.pivot;
             rect = CurrentPage.sprite.rect;
 
@@ -41,11 +48,130 @@ namespace QuranApp
             ////Download test
             ////QDownloader.DownloadAll(QDownloader.QuranArabicURL, 60, 63, QDownloader.QuranSaveToPath);
             //Console.ReadLine();
+            //PlayerPrefs.SetInt("QuranDownloaded", 0);
+            PlayerPrefs.SetInt("QuranExtracted", 0);
+
+            CheckQuranFiles();
+
+        }
+
+        //private bool fileDownloaded, fileExtracted = false;
+        private void CheckQuranFiles()
+        {
+            Debug.Log("Checking Files...");
+
+            if (PlayerPrefs.GetInt("QuranDownloaded") != 114)
+            {
+                Downloader.SetActive(true);
+                DownloadText.text = "(ﺖﻳﺎﺑﺎﺠﻴﻣ 168 ﻢﺠﺣ) ﻊﻗﻮﻤﻟﺍ ﻦﻣ نﺁﺮﻘﻟﺍ تﺎﻔﻠﻣ ﻞﻳﺰﻨﺗ ﻰﻟﺇ ﻖﻴﺒﻄﺘﻟﺍ جﺎﺘﺤﻳ";
+                DownloadButton.SetActive(true);
+                DownloadButton.transform.GetChild(0).GetComponent<Text>().text = "ﻖﻓﺍﻮﻣ";
+                DownloadButton.GetComponent<Image>().color = Green;
+
+                return;
+            }
+
+            if (PlayerPrefs.GetInt("QuranExtracted") != 114)
+            {
+                StartCoroutine(ExtractQuranFiles());
+                Debug.Log("extracting Quran files...");
+                return;
+            }
+
+            //Quran Loaded
+            Debug.Log("Quran finished loading");
+            Downloader.SetActive(false);
+            //yield return new WaitForSeconds(0.01f);
+
+            //Set a var to Ready, to avoid checking files again
+            //PlayerPrefs.SetInt("Quran_Ready", 114);
             BuildSuraButtons.InitilizeUI(this, NavParent);
             InitilizePrefs();
 
         }
 
+        private bool isDownloading = false;
+
+        public void DownloadButtonClicked()
+        {
+            if (isDownloading)
+            {
+                isDownloading = false;
+                StopDownloading();
+                DownloadText.text = "(ﺖﻳﺎﺑﺎﺠﻴﻣ 168 ﻢﺠﺣ) ﻊﻗﻮﻤﻟﺍ ﻦﻣ نﺁﺮﻘﻟﺍ تﺎﻔﻠﻣ ﻞﻳﺰﻨﺗ ﻰﻟﺇ ﻖﻴﺒﻄﺘﻟﺍ جﺎﺘﺤﻳ";
+                DownloadButton.SetActive(true);
+                DownloadButton.transform.GetChild(0).GetComponent<Text>().text = "ﻖﻓﺍﻮﻣ";
+                DownloadButton.GetComponent<Image>().color = Green;
+            }
+            else
+            {
+                isDownloading = true;
+                StartDownloading();
+                DownloadButton.SetActive(true);
+                DownloadButton.transform.GetChild(0).GetComponent<Text>().text = "ﻞﻳﺰﻨﺘﻟﺍ ءﺎﻐﻟﺍ";
+                DownloadButton.GetComponent<Image>().color = Red;
+            }
+        }
+        private void StartDownloading()
+        {
+
+            Downloader.SetActive(true);
+            StartCoroutine(DownloadQuranFiles());
+            Debug.Log("Quran downloading...");
+        }
+
+        private void StopDownloading()
+        {
+            StopAllCoroutines();
+            Downloader.SetActive(true);
+
+            Debug.Log("Quran stopped downloading...");
+        }
+        System.Collections.IEnumerator DownloadQuranFiles()
+        {
+
+            Debug.Log("DownloadQuranFiles()...");
+            Downloader.SetActive(true);
+
+            WWW Qlink = new WWW("https://images.qurancomplex.gov.sa/publications/a_70_nastaleeq/750.zip");
+
+            while (!Qlink.isDone)
+            {
+                //Downloading
+                DownloadText.text = string.Format("ﺖﻳﺎﺑﺎﺠﻴﻣ {1:0.0}/168   ﻒﺤﺼﻤﻟﺍ ﻞﻳﺰﻨﺗ {0:P1}", Qlink.progress, Qlink.progress * 168);
+                ProgressBar.fillAmount = Qlink.progress;
+                yield return new WaitForSeconds(0.1f);
+            }
+
+            yield return Qlink;
+
+            //saving zip to path
+            string savePath = string.Format("{0}/Quran.zip", Application.persistentDataPath);
+            System.IO.File.WriteAllBytes(savePath, Qlink.bytes);
+            //Quran compressed file downloaded
+            PlayerPrefs.SetInt("QuranDownloaded", 114);
+            CheckQuranFiles();
+
+        }
+
+        System.Collections.IEnumerator ExtractQuranFiles()
+        {
+            Debug.Log("ExtractQuranFiles()...");
+            DownloadText.text = "ةﺮﻴﺧﻷﺍ تﺎﺴﻤﻠﻟﺍ";
+            DownloadButton.SetActive(false);
+            yield return new WaitForSeconds(.1f);
+
+            //Unzip file
+            string zipPath = string.Format("{0}/Quran.zip", Application.persistentDataPath);
+            var dir = new DirectoryInfo(Application.persistentDataPath + "/Quran/");
+            if (dir.Exists)
+                dir.Delete(true);
+            ZipFile.ExtractToDirectory(zipPath, Application.persistentDataPath + "/Quran/");
+            //System.IO.Compression.
+            PlayerPrefs.SetInt("QuranExtracted", 114);
+            File.Delete(zipPath);
+            CheckQuranFiles();
+        }
         private bool touching = false;
         private Vector2 startTouchPos, endTouchPos;
         private float touchTime = 0;
@@ -55,6 +181,15 @@ namespace QuranApp
         private float triggerTimeEnd = 0.4f;
         void Update()
         {
+            SwipeInput();
+        }
+
+        private void SwipeInput()
+        {
+            if (!UseSwipe)
+                return;
+
+            //swipe input 
             if (Input.GetMouseButton(0))
             {
                 touchTime += Time.deltaTime;
@@ -81,6 +216,7 @@ namespace QuranApp
                 touchTime = 0;
             }
         }
+
         private void SwipePage()
         {
             //from left to right
@@ -96,21 +232,26 @@ namespace QuranApp
         }
         private void InitilizePrefs()
         {
+
             //setting some settings for first time run
             int firstTime = PlayerPrefs.GetInt("FirstTime");
             if (firstTime != 114)
             {
                 PlayerPrefs.SetInt("Invert", 1);
                 PlayerPrefs.SetInt("FirstTime", 114);
+                PlayerPrefs.SetInt("Nav", 0);
+
             }
 
             //load user settings
             InvertToggle(PlayerPrefs.GetInt("Invert"));
             ToggleRotation(PlayerPrefs.GetInt("Orientation"));
-            //RotationDropDown.value = PlayerPrefs.GetInt("Orientation");
+            SwitchNavigation(PlayerPrefs.GetInt("Nav"));
 
             //adjust settings state in ui
             invertToggleUI.isOn = PlayerPrefs.GetInt("Invert") == 1 ? true : false;
+            RotationDropDown.SetValueWithoutNotify(PlayerPrefs.GetInt("Orientation"));
+            NavDropDown.SetValueWithoutNotify(PlayerPrefs.GetInt("Nav"));
 
             //load last page viewed
             CurrentPageNumber = PlayerPrefs.GetInt("CurrentPage");
@@ -148,8 +289,9 @@ namespace QuranApp
             //load from file
             //CurrentPage.sprite = Sprite.Create(LoadPNG(path + PageName + ".jpg"), rect, pivot);
 
-            //load from resources
-            CurrentPage.sprite = Sprite.Create(Resources.Load<Texture2D>("Quran_Arabic_Pages_2/" + PageName), rect, pivot);
+            //load from folder/resources
+            //Resources.Load<Texture2D>("Quran_Arabic_Pages_2/" + PageName);
+            CurrentPage.sprite = Sprite.Create(LoadPNG(path + PageName + ".jpg"), rect, pivot);
             Resources.UnloadUnusedAssets();
             PlayerPrefs.SetInt("CurrentPage", CurrentPageNumber);
 
@@ -222,6 +364,36 @@ namespace QuranApp
             PlayerPrefs.SetInt("Orientation", orientation);
             //RotationDropDown.value = orientation;
         }
+
+        private bool UseSwipe = true;
+        public void SwitchNavigation(int nav)
+        {
+            PlayerPrefs.SetInt("Nav", nav);
+
+            switch (nav)
+            {
+                case 0:
+                    PreviousButtonGO.SetActive(true);
+                    NextButtonGO.SetActive(true);
+                    UseSwipe = true;
+                    break;
+                case 1:
+
+                    PreviousButtonGO.SetActive(true);
+                    NextButtonGO.SetActive(true);
+                    UseSwipe = false;
+
+                    break;
+                case 2:
+                    PreviousButtonGO.SetActive(false);
+                    NextButtonGO.SetActive(false);
+                    UseSwipe = true;
+                    break;
+            }
+
+            PlayerPrefs.SetInt("Orientation", nav);
+            //RotationDropDown.value = orientation;
+        }
         private int[] SuraPageNumbers = {
             004,005,053,080,109,131,154,180,190,211,
             224,238,252,258,264,270,285,296,308,315,
@@ -244,19 +416,19 @@ namespace QuranApp
             SuraNameText.text = BuildSuraButtons.SuraNames[SuraNumber];
 
         }
-        // public static Texture2D LoadPNG(string filePath)
-        // {
-        //     Texture2D tex = null;
-        //     byte[] fileData;
+        public static Texture2D LoadPNG(string filePath)
+        {
+            Texture2D tex = null;
+            byte[] fileData;
 
-        //     if (File.Exists(filePath))
-        //     {
-        //         fileData = File.ReadAllBytes(filePath);
-        //         tex = new Texture2D(2, 2);
-        //         tex.LoadImage(fileData); //..this will auto-resize the texture dimensions.
-        //     }
-        //     return tex;
-        // }
+            if (File.Exists(filePath))
+            {
+                fileData = File.ReadAllBytes(filePath);
+                tex = new Texture2D(2, 2);
+                tex.LoadImage(fileData); //..this will auto-resize the texture dimensions.
+            }
+            return tex;
+        }
         private static void SearchForText()
         {
             string inputText = "";
