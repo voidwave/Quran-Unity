@@ -174,7 +174,7 @@ namespace QuranApp
             var dir = new DirectoryInfo(Application.persistentDataPath + "/Quran/");
             if (dir.Exists)
                 dir.Delete(true);
-            
+
             ZipFile.ExtractToDirectory(zipPath, Application.persistentDataPath + "/Quran/");
             //System.IO.Compression.
             PlayerPrefs.SetInt("QuranExtracted", 114);
@@ -249,18 +249,18 @@ namespace QuranApp
                 PlayerPrefs.SetInt("Invert", 1);
                 PlayerPrefs.SetInt("FirstTime", 114);
                 PlayerPrefs.SetInt("Nav", 0);
-
+                PlayerPrefs.SetInt("Orientation", 0);
             }
 
             //load user settings
             InvertToggle(PlayerPrefs.GetInt("Invert"));
-            ToggleRotation(PlayerPrefs.GetInt("Orientation"));
+            SwitchRotation(PlayerPrefs.GetInt("Orientation"));
             SwitchNavigation(PlayerPrefs.GetInt("Nav"));
 
             //adjust settings state in ui
             invertToggleUI.isOn = PlayerPrefs.GetInt("Invert") == 1 ? true : false;
-            RotationDropDown.SetValueWithoutNotify(PlayerPrefs.GetInt("Orientation"));
-            NavDropDown.SetValueWithoutNotify(PlayerPrefs.GetInt("Nav"));
+            RotationDropDown.value = (PlayerPrefs.GetInt("Orientation"));
+            NavDropDown.value = (PlayerPrefs.GetInt("Nav"));
 
             //load last page viewed
             CurrentPageNumber = PlayerPrefs.GetInt("CurrentPage");
@@ -355,8 +355,11 @@ namespace QuranApp
                 CurrentPage.material = NormalMat;
         }
 
-        public void ToggleRotation(int orientation)
+        public void SwitchRotation(int orientation)
         {
+
+            PlayerPrefs.SetInt("Orientation", orientation);
+
             switch (orientation)
             {
                 case 0:
@@ -370,7 +373,6 @@ namespace QuranApp
                     break;
             }
 
-            PlayerPrefs.SetInt("Orientation", orientation);
             //RotationDropDown.value = orientation;
         }
 
