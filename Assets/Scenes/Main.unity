@@ -2374,7 +2374,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3584906, g: 0.3584906, b: 0.3584906, a: 1}
+  m_Color: {r: 0.86263454, g: 1, b: 0, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -3508,7 +3508,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 4a9a9fc37b2c82e4ead110649781739a, type: 3}
     m_FontSize: 71
     m_FontStyle: 0
     m_BestFit: 0
@@ -4676,9 +4676,9 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_FontData:
-    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_Font: {fileID: 12800000, guid: 4a9a9fc37b2c82e4ead110649781739a, type: 3}
     m_FontSize: 36
-    m_FontStyle: 1
+    m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 10
     m_MaxSize: 81
@@ -4688,7 +4688,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: ")\uFE96\uFEF3\uFE8E\uFE91\uFE8E\uFEA0\uFEF4\uFEE3 061 \uFEE2\uFEA0\uFEA3(
+  m_Text: "(\uFE96\uFEF3\uFE8E\uFE91\uFE8E\uFEA0\uFEF4\uFEE3 168 \uFEE2\uFEA0\uFEA3)
     \uFECA\uFED7\uFEEE\uFEE4\uFEDF\uFE8D \uFEE6\uFEE3 \u0646\uFE81\uFEAE\uFED8\uFEDF\uFE8D
     \u062A\uFE8E\uFED4\uFEE0\uFEE3 \uFEDE\uFEF3\uFEB0\uFEE8\uFE97 \uFEF0\uFEDF\uFE87
     \uFED6\uFEF4\uFE92\uFEC4\uFE98\uFEDF\uFE8D \u062C\uFE8E\uFE98\uFEA4\uFEF3"

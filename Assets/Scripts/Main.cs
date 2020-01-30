@@ -48,8 +48,8 @@ namespace QuranApp
             ////Download test
             ////QDownloader.DownloadAll(QDownloader.QuranArabicURL, 60, 63, QDownloader.QuranSaveToPath);
             //Console.ReadLine();
-            //PlayerPrefs.SetInt("QuranDownloaded", 0);
-            PlayerPrefs.SetInt("QuranExtracted", 0);
+            // PlayerPrefs.SetInt("QuranDownloaded", 0);
+            // PlayerPrefs.SetInt("QuranExtracted", 0);
 
             CheckQuranFiles();
 
@@ -145,12 +145,20 @@ namespace QuranApp
 
             yield return Qlink;
 
-            //saving zip to path
-            string savePath = string.Format("{0}/Quran.zip", Application.persistentDataPath);
-            System.IO.File.WriteAllBytes(savePath, Qlink.bytes);
-            //Quran compressed file downloaded
-            PlayerPrefs.SetInt("QuranDownloaded", 114);
-            CheckQuranFiles();
+            if (!string.IsNullOrEmpty(Qlink.error))
+            {
+                CheckQuranFiles();
+
+            }
+            else
+            {
+                //saving zip to path
+                string savePath = string.Format("{0}/Quran.zip", Application.persistentDataPath);
+                System.IO.File.WriteAllBytes(savePath, Qlink.bytes);
+                //Quran compressed file downloaded
+                PlayerPrefs.SetInt("QuranDownloaded", 114);
+                CheckQuranFiles();
+            }
 
         }
 
@@ -166,6 +174,7 @@ namespace QuranApp
             var dir = new DirectoryInfo(Application.persistentDataPath + "/Quran/");
             if (dir.Exists)
                 dir.Delete(true);
+            
             ZipFile.ExtractToDirectory(zipPath, Application.persistentDataPath + "/Quran/");
             //System.IO.Compression.
             PlayerPrefs.SetInt("QuranExtracted", 114);

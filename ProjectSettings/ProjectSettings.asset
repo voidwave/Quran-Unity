@@ -166,7 +166,7 @@ PlayerSettings:
   applicationIdentifier:
     Standalone: com.voidwave.Quran
   buildNumber: {}
-  AndroidBundleVersionCode: 5
+  AndroidBundleVersionCode: 7
   AndroidMinSdkVersion: 19
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1
