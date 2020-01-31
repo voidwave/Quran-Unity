@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.IO.Compression;
+using ArabicSupport;
 
 namespace QuranApp
 {
@@ -25,12 +26,14 @@ namespace QuranApp
         public Text PageNumberText, SuraNameText, DownloadText;//, DebugText;
         public Color Green, Red;
 
-        public UnityEngine.UI.Dropdown RotationDropDown, NavDropDown;
+        public UnityEngine.UI.Dropdown RotationDropDown, NavDropDown, DownloadLocation;
 
         void Start()
         {
-            Debug.Log("بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ");
-
+            string basmalah = "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ";
+            Debug.Log(ArabicFixer.Fix(basmalah));
+            Debug.Log(ArabicFixer.Fix(basmalah, true, true));
+            //DebugText.text = ArabicFixer.Fix("بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ", false, false);
 
             SettingsWindow.SetActive(false);
             path = Application.persistentDataPath + "/Quran/750/jpg_90/";
@@ -63,7 +66,7 @@ namespace QuranApp
             if (PlayerPrefs.GetInt("QuranDownloaded") != 114)
             {
                 Downloader.SetActive(true);
-                DownloadText.text = "(ﺖﻳﺎﺑﺎﺠﻴﻣ 168 ﻢﺠﺣ) ﻊﻗﻮﻤﻟﺍ ﻦﻣ نﺁﺮﻘﻟﺍ تﺎﻔﻠﻣ ﻞﻳﺰﻨﺗ ﻰﻟﺇ ﻖﻴﺒﻄﺘﻟﺍ جﺎﺘﺤﻳ";
+                DownloadText.text = "(ﺖﻳﺎﺑﺎﺠﻴﻣ 160 ﻢﺠﺣ) ﻊﻗﻮﻤﻟﺍ ﻦﻣ نﺁﺮﻘﻟﺍ تﺎﻔﻠﻣ ﻞﻳﺰﻨﺗ ﻰﻟﺇ ﻖﻴﺒﻄﺘﻟﺍ جﺎﺘﺤﻳ";
                 DownloadButton.SetActive(true);
                 DownloadButton.transform.GetChild(0).GetComponent<Text>().text = "ﻖﻓﺍﻮﻣ";
                 DownloadButton.GetComponent<Image>().color = Green;
@@ -95,36 +98,31 @@ namespace QuranApp
         public void DownloadButtonClicked()
         {
             if (isDownloading)
-            {
-                isDownloading = false;
                 StopDownloading();
-                DownloadText.text = "(ﺖﻳﺎﺑﺎﺠﻴﻣ 168 ﻢﺠﺣ) ﻊﻗﻮﻤﻟﺍ ﻦﻣ نﺁﺮﻘﻟﺍ تﺎﻔﻠﻣ ﻞﻳﺰﻨﺗ ﻰﻟﺇ ﻖﻴﺒﻄﺘﻟﺍ جﺎﺘﺤﻳ";
-                DownloadButton.SetActive(true);
-                DownloadButton.transform.GetChild(0).GetComponent<Text>().text = "ﻖﻓﺍﻮﻣ";
-                DownloadButton.GetComponent<Image>().color = Green;
-            }
             else
-            {
-                isDownloading = true;
                 StartDownloading();
-                DownloadButton.SetActive(true);
-                DownloadButton.transform.GetChild(0).GetComponent<Text>().text = "ﻞﻳﺰﻨﺘﻟﺍ ءﺎﻐﻟﺍ";
-                DownloadButton.GetComponent<Image>().color = Red;
-            }
         }
         private void StartDownloading()
         {
 
             Downloader.SetActive(true);
             StartCoroutine(DownloadQuranFiles());
+            isDownloading = true;
+            DownloadButton.SetActive(true);
+            DownloadButton.transform.GetChild(0).GetComponent<Text>().text = "ﻞﻳﺰﻨﺘﻟﺍ ءﺎﻐﻟﺍ";
+            DownloadButton.GetComponent<Image>().color = Red;
             Debug.Log("Quran downloading...");
         }
 
         private void StopDownloading()
         {
             StopAllCoroutines();
+            isDownloading = false;
             Downloader.SetActive(true);
-
+            DownloadText.text = "(ﺖﻳﺎﺑﺎﺠﻴﻣ 160 ﻢﺠﺣ) ﻊﻗﻮﻤﻟﺍ ﻦﻣ نﺁﺮﻘﻟﺍ تﺎﻔﻠﻣ ﻞﻳﺰﻨﺗ ﻰﻟﺇ ﻖﻴﺒﻄﺘﻟﺍ جﺎﺘﺤﻳ";
+            DownloadButton.SetActive(true);
+            DownloadButton.transform.GetChild(0).GetComponent<Text>().text = "ﻖﻓﺍﻮﻣ";
+            DownloadButton.GetComponent<Image>().color = Green;
             Debug.Log("Quran stopped downloading...");
         }
         System.Collections.IEnumerator DownloadQuranFiles()
@@ -133,12 +131,19 @@ namespace QuranApp
             Debug.Log("DownloadQuranFiles()...");
             Downloader.SetActive(true);
 
-            WWW Qlink = new WWW("https://images.qurancomplex.gov.sa/publications/a_70_nastaleeq/750.zip");
+            string downloadLink = "https://images.qurancomplex.gov.sa/publications/a_70_nastaleeq/750.zip";
+
+            if (DownloadLocation.value == 0)
+                downloadLink = "https://images.qurancomplex.gov.sa/publications/a_70_nastaleeq/750.zip";
+            if (DownloadLocation.value == 1)
+                downloadLink = "http://voidwave.com/AlQuran.zip";
+
+            WWW Qlink = new WWW(downloadLink);
 
             while (!Qlink.isDone)
             {
                 //Downloading
-                DownloadText.text = string.Format("ﺖﻳﺎﺑﺎﺠﻴﻣ {1:0.0}/168   ﻒﺤﺼﻤﻟﺍ ﻞﻳﺰﻨﺗ {0:P1}", Qlink.progress, Qlink.progress * 168);
+                DownloadText.text = string.Format("ﺖﻳﺎﺑﺎﺠﻴﻣ {1:0.0}/160   ﻒﺤﺼﻤﻟﺍ ﻞﻳﺰﻨﺗ {0:P1}", Qlink.progress, Qlink.progress * 168);
                 ProgressBar.fillAmount = Qlink.progress;
                 yield return new WaitForSeconds(0.1f);
             }
@@ -246,7 +251,7 @@ namespace QuranApp
             int firstTime = PlayerPrefs.GetInt("FirstTime");
             if (firstTime != 114)
             {
-                PlayerPrefs.SetInt("Invert", 1);
+                PlayerPrefs.SetInt("Invert", 0);
                 PlayerPrefs.SetInt("FirstTime", 114);
                 PlayerPrefs.SetInt("Nav", 0);
                 PlayerPrefs.SetInt("Orientation", 0);
@@ -333,6 +338,7 @@ namespace QuranApp
         public void SettingsToggle()
         {
             SettingsWindow.SetActive(!SettingsWindow.activeSelf);
+            CurrentPage.enabled = (!SettingsWindow.activeSelf);
         }
         public void InvertToggle(bool toggle)
         {
@@ -357,7 +363,7 @@ namespace QuranApp
 
         public void SwitchRotation(int orientation)
         {
-
+            //SettingsWindow.SetActive(false);
             PlayerPrefs.SetInt("Orientation", orientation);
 
             switch (orientation)
