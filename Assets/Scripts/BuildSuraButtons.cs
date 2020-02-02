@@ -3,7 +3,7 @@
 using System;
 using System.Text;
 using UnityEngine;
-using UnityEngine.UI;
+
 namespace QuranApp
 {
     public static class BuildSuraButtons
@@ -54,6 +54,8 @@ namespace QuranApp
 
 
             }
+
+      
         }
 
 

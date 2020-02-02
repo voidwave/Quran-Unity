@@ -25,14 +25,15 @@ namespace QuranApp
         private Vector2 pivot;
         public Text PageNumberText, SuraNameText, DownloadText;//, DebugText;
         public Color Green, Red;
-
         public UnityEngine.UI.Dropdown RotationDropDown, NavDropDown, DownloadLocation;
 
         void Start()
         {
+
             string basmalah = "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ";
-            Debug.Log(ArabicFixer.Fix(basmalah));
-            Debug.Log(ArabicFixer.Fix(basmalah, true, true));
+            //Debug.Log(ArabicFixer.Fix(basmalah));
+            //Debug.Log(ArabicFixer.Fix(basmalah, true, true));
+            Application.targetFrameRate = 60;
             //DebugText.text = ArabicFixer.Fix("بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ", false, false);
 
             SettingsWindow.SetActive(false);
@@ -200,7 +201,7 @@ namespace QuranApp
 
         private void SwipeInput()
         {
-            if (!UseSwipe)
+            if (!UseSwipe || SettingsWindow.activeSelf)
                 return;
 
             //swipe input 
@@ -310,7 +311,7 @@ namespace QuranApp
             PlayerPrefs.SetInt("CurrentPage", CurrentPageNumber);
 
             Vector3 tempPos = CurrentPageRectTransform.position;
-            tempPos.y -= 2000;
+            tempPos.y -= 10000;
             CurrentPageRectTransform.position = tempPos;
 
             //update sura name text
