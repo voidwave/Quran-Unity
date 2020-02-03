@@ -3,7 +3,7 @@
 using System;
 using System.Text;
 using UnityEngine;
-
+using UnityEngine.UI;
 namespace QuranApp
 {
     public static class BuildSuraButtons
@@ -25,8 +25,10 @@ namespace QuranApp
 
             for (int i = 0; i < 114; i++)
             {
-                //GameObject sura = GameObject.Instantiate(SuraButtonPrefab, Vector3.zero, Quaternion.identity, NavParent);
-                //sura.name = "Sura_" + (i + 1);
+                //Vector3 pos = new Vector3(Screen.width - 180, Screen.height + 97 - 216 * (i + 1), 0);
+                //GameObject sura = GameObject.Instantiate(SuraButtonPrefab, pos, Quaternion.identity, NavParent);
+                GameObject sura = NavParent.GetChild(i).gameObject;
+                sura.name = "Sura_" + (i + 1);
 
                 //fix for jumps in unicode font
                 if (i == 35)
@@ -39,7 +41,7 @@ namespace QuranApp
                 //Title Name
                 uint utf32 = uint.Parse(startSura.ToString("X"), System.Globalization.NumberStyles.HexNumber);
                 string s = Encoding.Unicode.GetString(BitConverter.GetBytes(utf32));
-                //sura.transform.GetChild(0).GetComponent<TextMesh>().text = s;
+                sura.GetComponent<Text>().text = s;
                 SuraNames[i] = s;
                 startSura++;
 
@@ -49,13 +51,14 @@ namespace QuranApp
 
 
                 //Assign Button
-                //sura.GetComponent<Button>().onClick.AddListener(delegate () { main.GotoSura(suraNumber); });
-                //sura.GetComponent<Button>().onClick.AddListener(delegate () { main.SettingsToggle(); });
+                sura.GetComponent<Button>().onClick.AddListener(delegate () { main.GotoSura(suraNumber); });
+                sura.GetComponent<Button>().onClick.AddListener(delegate () { main.SettingsToggle(); });
 
 
+                //sura.GetComponent<RectTransform>().position = pos;
             }
 
-      
+
         }
 
 

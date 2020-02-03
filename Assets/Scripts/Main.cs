@@ -12,7 +12,7 @@ namespace QuranApp
 {
     public class Main : MonoBehaviour
     {
-
+        private Camera mainCam;
         private int MAXPAGE = 620;
         public int CurrentPageNumber = 1;
         public Image CurrentPage, NextPage, ProgressBar;
@@ -31,6 +31,7 @@ namespace QuranApp
         {
 
             string basmalah = "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ";
+            mainCam = GetComponent<Camera>();
             //Debug.Log(ArabicFixer.Fix(basmalah));
             //Debug.Log(ArabicFixer.Fix(basmalah, true, true));
             Application.targetFrameRate = 60;
@@ -357,9 +358,15 @@ namespace QuranApp
         public void InvertToggle(int toggle)
         {
             if (toggle == 1)
+            {
+                mainCam.backgroundColor = Color.black;
                 CurrentPage.material = InvertMat;
+            }
             else
+            {
+                mainCam.backgroundColor = Color.white;
                 CurrentPage.material = NormalMat;
+            }
         }
 
         public void SwitchRotation(int orientation)
