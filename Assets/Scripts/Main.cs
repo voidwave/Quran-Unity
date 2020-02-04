@@ -198,6 +198,45 @@ namespace QuranApp
         void Update()
         {
             SwipeInput();
+            ScreenRotationEvent();
+        }
+
+        //private ScreenOrientationState CurrentScreenOrientation;
+        private void ScreenRotationEvent()
+        {
+            // if (ScreenState == ScreenOrientationState.AutoRotation)
+            // {
+
+            if ((Input.deviceOrientation == DeviceOrientation.LandscapeLeft) && (Screen.orientation != ScreenOrientation.LandscapeLeft))
+            {
+                SettingsOff();
+                Screen.orientation = ScreenOrientation.LandscapeLeft;
+                return;
+            }
+
+            if ((Input.deviceOrientation == DeviceOrientation.LandscapeRight) && (Screen.orientation != ScreenOrientation.LandscapeRight))
+            {
+                SettingsOff();
+                Screen.orientation = ScreenOrientation.LandscapeRight;
+                return;
+            }
+
+            if ((Input.deviceOrientation == DeviceOrientation.Portrait) && (Screen.orientation != ScreenOrientation.Portrait))
+            {
+                SettingsOff();
+                Screen.orientation = ScreenOrientation.Portrait;
+                return;
+            }
+
+            if ((Input.deviceOrientation == DeviceOrientation.PortraitUpsideDown) && (Screen.orientation != ScreenOrientation.PortraitUpsideDown))
+            {
+                SettingsOff();
+                Screen.orientation = ScreenOrientation.PortraitUpsideDown;
+                return;
+            }
+            //}
+
+
         }
 
         private void SwipeInput()
@@ -256,17 +295,17 @@ namespace QuranApp
                 PlayerPrefs.SetInt("Invert", 0);
                 PlayerPrefs.SetInt("FirstTime", 114);
                 PlayerPrefs.SetInt("Nav", 0);
-                PlayerPrefs.SetInt("Orientation", 0);
+                //PlayerPrefs.SetInt("Orientation", 0);
             }
 
             //load user settings
-            InvertToggle(PlayerPrefs.GetInt("Invert"));
-            SwitchRotation(PlayerPrefs.GetInt("Orientation"));
+            InvertToggle(PlayerPrefs.GetInt("Invert") == 1);
+            //SwitchRotation(PlayerPrefs.GetInt("Orientation"));
             SwitchNavigation(PlayerPrefs.GetInt("Nav"));
 
             //adjust settings state in ui
             invertToggleUI.isOn = PlayerPrefs.GetInt("Invert") == 1 ? true : false;
-            RotationDropDown.value = (PlayerPrefs.GetInt("Orientation"));
+            //RotationDropDown.value = (PlayerPrefs.GetInt("Orientation"));
             NavDropDown.value = (PlayerPrefs.GetInt("Nav"));
 
             //load last page viewed
@@ -342,30 +381,24 @@ namespace QuranApp
             SettingsWindow.SetActive(!SettingsWindow.activeSelf);
             CurrentPage.enabled = (!SettingsWindow.activeSelf);
         }
+        private void SettingsOff()
+        {
+            SettingsWindow.SetActive(false);
+            CurrentPage.enabled = (true);
+        }
         public void InvertToggle(bool toggle)
         {
             if (toggle)
             {
+                mainCam.backgroundColor = Color.black;
                 CurrentPage.material = InvertMat;
                 PlayerPrefs.SetInt("Invert", 1);
             }
             else
             {
-                CurrentPage.material = NormalMat;
-                PlayerPrefs.SetInt("Invert", 0);
-            }
-        }
-        public void InvertToggle(int toggle)
-        {
-            if (toggle == 1)
-            {
-                mainCam.backgroundColor = Color.black;
-                CurrentPage.material = InvertMat;
-            }
-            else
-            {
                 mainCam.backgroundColor = Color.white;
                 CurrentPage.material = NormalMat;
+                PlayerPrefs.SetInt("Invert", 0);
             }
         }
 
@@ -373,7 +406,7 @@ namespace QuranApp
         {
             //SettingsWindow.SetActive(false);
             PlayerPrefs.SetInt("Orientation", orientation);
-
+            //ScreenState = (ScreenOrientationState)orientation;
             switch (orientation)
             {
                 case 0:
@@ -389,6 +422,8 @@ namespace QuranApp
 
             //RotationDropDown.value = orientation;
         }
+
+
 
         private bool UseSwipe = true;
         public void SwitchNavigation(int nav)
@@ -416,8 +451,6 @@ namespace QuranApp
                     break;
             }
 
-            PlayerPrefs.SetInt("Orientation", nav);
-            //RotationDropDown.value = orientation;
         }
         private int[] SuraPageNumbers = {
             004,005,053,080,109,131,154,180,190,211,
