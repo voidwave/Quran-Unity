@@ -15,7 +15,7 @@ namespace QuranApp
         private Camera mainCam;
         private int MAXPAGE = 620;
         public int CurrentPageNumber = 1;
-        public Image CurrentPage, NextPage, ProgressBar;
+        public Image CurrentPage, AnimatedPage, ProgressBar;
         public RectTransform CurrentPageRectTransform;
         public Toggle invertToggleUI;
         public Material NormalMat, InvertMat;
@@ -25,7 +25,7 @@ namespace QuranApp
         private Vector2 pivot;
         public Text PageNumberText, SuraNameText, DownloadText;//, DebugText;
         public Color Green, Red;
-        public UnityEngine.UI.Dropdown RotationDropDown, NavDropDown, DownloadLocation;
+        public UnityEngine.UI.Dropdown RotationDropDown, NavDropDown;//, DownloadLocation;
 
         void Start()
         {
@@ -44,7 +44,7 @@ namespace QuranApp
             //Data.PathToQuranWithTashkeel = Application.persistentDataPath + "/Text/quran-simple.xml";
             pivot = CurrentPage.sprite.pivot;
             rect = CurrentPage.sprite.rect;
-
+            //pageInitialPosition = new Vector3(0,-960,0);
             //Initilize Quran Text from XML
             //Data.Init();
             //Debug.Log($"Quran Sura Count: {Data.QuranWithTashkeel.Count}");
@@ -133,12 +133,12 @@ namespace QuranApp
             Debug.Log("DownloadQuranFiles()...");
             Downloader.SetActive(true);
 
-            string downloadLink = "https://images.qurancomplex.gov.sa/publications/a_70_nastaleeq/750.zip";
+            string downloadLink = "http://voidwave.com/AlQuran.zip";
 
-            if (DownloadLocation.value == 0)
-                downloadLink = "https://images.qurancomplex.gov.sa/publications/a_70_nastaleeq/750.zip";
-            if (DownloadLocation.value == 1)
-                downloadLink = "http://voidwave.com/AlQuran.zip";
+            // if (DownloadLocation.value == 0)
+            //     downloadLink = "https://images.qurancomplex.gov.sa/publications/a_70_nastaleeq/750.zip";
+            // if (DownloadLocation.value == 1)
+            //     downloadLink = "http://voidwave.com/AlQuran.zip";
 
             WWW Qlink = new WWW(downloadLink);
 
@@ -195,10 +195,37 @@ namespace QuranApp
         private float triggerTimeStart = 0.1f;
         [SerializeField]
         private float triggerTimeEnd = 0.4f;
+        public Vector3 pageInitialPosition = Vector3.zero;
         void Update()
         {
             SwipeInput();
             ScreenRotationEvent();
+            PageAnimation();
+        }
+        private float pageAnimating = 0;
+        private bool animateRight = false;
+        public float animationSpeed = 1;
+        public bool animationDone = true;
+        public float widthMultiplier = 3;
+        private void PageAnimation()
+        {
+            if (animationDone)
+                return;
+
+            if (pageAnimating <= 0)
+            {
+                AnimatedPage.sprite = CurrentPage.sprite;
+                AnimatedPage.transform.localPosition = pageInitialPosition;
+                animationDone = true;
+                return;
+            }
+
+            if (animateRight && AnimatedPage.transform.localPosition.x < Screen.width * widthMultiplier)
+                AnimatedPage.transform.localPosition = Vector3.Lerp(AnimatedPage.transform.localPosition, AnimatedPage.transform.localPosition + Vector3.right * Screen.width * widthMultiplier, Time.deltaTime * animationSpeed);
+            else if (!animateRight && AnimatedPage.transform.localPosition.x > Screen.width * -widthMultiplier)
+                AnimatedPage.transform.localPosition = Vector3.Lerp(AnimatedPage.transform.localPosition, AnimatedPage.transform.localPosition + Vector3.left * Screen.width * widthMultiplier, Time.deltaTime * animationSpeed);
+
+            pageAnimating -= Time.deltaTime;
         }
 
         //private ScreenOrientationState CurrentScreenOrientation;
@@ -274,6 +301,8 @@ namespace QuranApp
 
         private void SwipePage()
         {
+            if (startTouchPos.y < 200 || endTouchPos.y < 200)
+                return;
             //from left to right
             if (startTouchPos.x + 350 < endTouchPos.x)
             {
@@ -313,22 +342,40 @@ namespace QuranApp
             if (CurrentPageNumber < 1 || CurrentPageNumber > MAXPAGE)
                 CurrentPageNumber = 1;
             LoadPage(CurrentPageNumber);
+            AnimatedPage.sprite = CurrentPage.sprite;
+            AnimatedPage.transform.localPosition = pageInitialPosition;
         }
 
         public void LoadNextPage()
         {
 
+            AnimatedPage.sprite = CurrentPage.sprite;
+            AnimatedPage.transform.localPosition = pageInitialPosition;
+
             if (CurrentPageNumber < MAXPAGE)
                 CurrentPageNumber++;
             LoadPage(CurrentPageNumber);
 
+
+
+            animationDone = false;
+            animateRight = true;
+            pageAnimating = 0.5f;
         }
         public void LoadPreviousPage()
         {
+            AnimatedPage.sprite = CurrentPage.sprite;
+            AnimatedPage.transform.localPosition = pageInitialPosition;
+
 
             if (CurrentPageNumber > 1)
                 CurrentPageNumber--;
             LoadPage(CurrentPageNumber);
+
+
+            animationDone = false;
+            animateRight = false;
+            pageAnimating = 0.5f;
         }
 
         private string path;// = Application.persistentDataPath + "/Quran_Arabic_Pages_2/";
@@ -392,12 +439,14 @@ namespace QuranApp
             {
                 mainCam.backgroundColor = Color.black;
                 CurrentPage.material = InvertMat;
+                AnimatedPage.material = InvertMat;
                 PlayerPrefs.SetInt("Invert", 1);
             }
             else
             {
                 mainCam.backgroundColor = Color.white;
                 CurrentPage.material = NormalMat;
+                AnimatedPage.material = NormalMat;
                 PlayerPrefs.SetInt("Invert", 0);
             }
         }
@@ -472,6 +521,8 @@ namespace QuranApp
             CurrentPageNumber = SuraPageNumbers[SuraNumber];
             LoadPage(CurrentPageNumber);
             SuraNameText.text = BuildSuraButtons.SuraNames[SuraNumber];
+            AnimatedPage.sprite = CurrentPage.sprite;
+            AnimatedPage.transform.localPosition = pageInitialPosition;
 
         }
         public static Texture2D LoadPNG(string filePath)
