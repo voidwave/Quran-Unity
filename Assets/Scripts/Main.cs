@@ -23,9 +23,9 @@ namespace QuranApp
         public Transform NavParent;
         private Rect rect;
         private Vector2 pivot;
-        public Text PageNumberText, SuraNameText, DownloadText;//, DebugText;
+        public Text DownloadText;//, DebugText;
         public Color Green, Red;
-        public UnityEngine.UI.Dropdown RotationDropDown, NavDropDown;//, DownloadLocation;
+        public UnityEngine.UI.Dropdown NavDropDown;//, DownloadLocation;
 
         void Start()
         {
@@ -215,15 +215,17 @@ namespace QuranApp
             if (pageAnimating <= 0)
             {
                 AnimatedPage.sprite = CurrentPage.sprite;
+                //AnimatedPage.sprite = CurrentPage.sprite;
+                //AnimatedPage.sprite = CurrentPage.sprite;
                 AnimatedPage.transform.localPosition = pageInitialPosition;
                 animationDone = true;
                 return;
             }
 
-            if (animateRight && AnimatedPage.transform.localPosition.x < Screen.width * widthMultiplier)
-                AnimatedPage.transform.localPosition = Vector3.Lerp(AnimatedPage.transform.localPosition, AnimatedPage.transform.localPosition + Vector3.right * Screen.width * widthMultiplier, Time.deltaTime * animationSpeed);
-            else if (!animateRight && AnimatedPage.transform.localPosition.x > Screen.width * -widthMultiplier)
-                AnimatedPage.transform.localPosition = Vector3.Lerp(AnimatedPage.transform.localPosition, AnimatedPage.transform.localPosition + Vector3.left * Screen.width * widthMultiplier, Time.deltaTime * animationSpeed);
+            if (animateRight && AnimatedPage.transform.localPosition.x < 1340)//Screen.width * widthMultiplier)
+                AnimatedPage.transform.localPosition = Vector3.Lerp(AnimatedPage.transform.localPosition, AnimatedPage.transform.localPosition + Vector3.right * 1340, Time.deltaTime * animationSpeed);
+            else if (!animateRight && AnimatedPage.transform.localPosition.x > -1340)
+                AnimatedPage.transform.localPosition = Vector3.Lerp(AnimatedPage.transform.localPosition, AnimatedPage.transform.localPosition + Vector3.left * 1340, Time.deltaTime * animationSpeed);
 
             pageAnimating -= Time.deltaTime;
         }
@@ -266,15 +268,50 @@ namespace QuranApp
 
         }
 
+        // private void SwipeInput()
+        // {
+        //     if (!UseSwipe || SettingsWindow.activeSelf)
+        //         return;
+
+        //     //swipe input 
+        //     if (Input.GetMouseButton(0))
+        //     {
+        //         touchTime += Time.deltaTime;
+        //         if (!touching)
+        //         {
+        //             touching = true;
+        //             startTouchPos = Input.mousePosition;
+        //             //Debug.Log($"Start Pos: {startTouchPos}");
+        //         }
+
+        //     }
+        //     else
+        //     {
+        //         if (touching)
+        //         {
+        //             endTouchPos = Input.mousePosition;
+        //             touching = false;
+        //             //Debug.Log($"End Pos: {endTouchPos}");
+
+        //             if (touchTime > triggerTimeStart && touchTime < triggerTimeEnd)
+        //                 SwipePage();
+
+        //         }
+        //         touchTime = 0;
+        //     }
+        // }
         private void SwipeInput()
         {
-            if (!UseSwipe || SettingsWindow.activeSelf)
+            if (SettingsWindow.activeSelf)
+                return;
+
+            if (!animationDone)
                 return;
 
             //swipe input 
             if (Input.GetMouseButton(0))
             {
-                touchTime += Time.deltaTime;
+                //touchTime += Time.deltaTime;
                 if (!touching)
                 {
                     touching = true;
@@ -291,29 +328,37 @@ namespace QuranApp
                     touching = false;
                     //Debug.Log($"End Pos: {endTouchPos}");
 
-                    if (touchTime > triggerTimeStart && touchTime < triggerTimeEnd)
-                        SwipePage();
+                    if (startTouchPos.y < 200 || endTouchPos.y < 200)
+                        return;
 
+                    if (CurrentPageRectTransform.localPosition.x > 200)
+                        LoadNextPage();
+                    if (CurrentPageRectTransform.localPosition.x < -200)
+                        LoadPreviousPage();
+                    
                 }
-                touchTime = 0;
+                //touchTime = 0;
             }
         }
+        //public float swipePercentDistance = 0.25f;
+        // private void SwipePage()
+        // {
+        //     if (!animationDone)
+        //         return;
 
-        private void SwipePage()
-        {
-            if (startTouchPos.y < 200 || endTouchPos.y < 200)
-                return;
-            //from left to right
-            if (startTouchPos.x + 350 < endTouchPos.x)
-            {
-                LoadNextPage();
-            }
-            //from right to left
-            if (startTouchPos.x > endTouchPos.x + 350)
-            {
-                LoadPreviousPage();
-            }
-        }
+        //     if (startTouchPos.y < 200 || endTouchPos.y < 200)
+        //         return;
+        //     //from left to right
+        //     if (startTouchPos.x + swipePercentDistance * Screen.width < endTouchPos.x)
+        //     {
+        //         LoadNextPage();
+        //     }
+        //     //from right to left
+        //     if (startTouchPos.x > endTouchPos.x + swipePercentDistance * Screen.width)
+        //     {
+        //         LoadPreviousPage();
+        //     }
+        // }
         private void InitilizePrefs()
         {
 
@@ -354,7 +399,7 @@ namespace QuranApp
 
             if (CurrentPageNumber < MAXPAGE)
                 CurrentPageNumber++;
-            LoadPage(CurrentPageNumber);
+            LoadPage(CurrentPageNumber, 1);
 
 
 
@@ -370,7 +415,7 @@ namespace QuranApp
 
             if (CurrentPageNumber > 1)
                 CurrentPageNumber--;
-            LoadPage(CurrentPageNumber);
+            LoadPage(CurrentPageNumber, -1);
 
 
             animationDone = false;
@@ -379,12 +424,12 @@ namespace QuranApp
         }
 
         private string path;// = Application.persistentDataPath + "/Quran_Arabic_Pages_2/";
-        public void LoadPage(int page)
+        public void LoadPage(int page, int nextPage = 0)
         {
-            if (page > 2 && page < 614)
-                PageNumberText.text = (page - 2).ToString();
-            else
-                PageNumberText.text = "-";
+            // if (page > 2 && page < 614)
+            //     PageNumberText.text = (page - 2).ToString();
+            // else
+            //     PageNumberText.text = "-";
 
             string PageName = page.ToString("0000");
 
@@ -394,33 +439,18 @@ namespace QuranApp
             //load from folder/resources
             //Resources.Load<Texture2D>("Quran_Arabic_Pages_2/" + PageName);
             CurrentPage.sprite = Sprite.Create(LoadPNG(path + PageName + ".jpg"), rect, pivot);
+            if (nextPage > 0)
+                AnimatedPage.transform.GetChild(0).GetComponent<Image>().sprite = CurrentPage.sprite;
+            else if (nextPage < 0)
+                AnimatedPage.transform.GetChild(1).GetComponent<Image>().sprite = CurrentPage.sprite;
+
             Resources.UnloadUnusedAssets();
             PlayerPrefs.SetInt("CurrentPage", CurrentPageNumber);
 
             Vector3 tempPos = CurrentPageRectTransform.position;
-            tempPos.y -= 10000;
+            //tempPos.y = -960;
             CurrentPageRectTransform.position = tempPos;
 
-            //update sura name text
-            for (int i = 0; i < 114; i++)
-            {
-                if (CurrentPageNumber > 613 || CurrentPageNumber < 4)
-                {
-                    SuraNameText.text = "";
-                    break;
-                }
-
-                if (CurrentPageNumber == SuraPageNumbers[i])
-                {
-                    SuraNameText.text = BuildSuraButtons.SuraNames[i];
-                    break;
-                }
-                if (CurrentPageNumber > SuraPageNumbers[i] && CurrentPageNumber < SuraPageNumbers[i + 1])
-                {
-                    SuraNameText.text = BuildSuraButtons.SuraNames[i];
-                    break;
-                }
-            }
         }
 
         public void SettingsToggle()
@@ -440,6 +470,8 @@ namespace QuranApp
                 mainCam.backgroundColor = Color.black;
                 CurrentPage.material = InvertMat;
                 AnimatedPage.material = InvertMat;
+                AnimatedPage.transform.GetChild(0).GetComponent<Image>().material = InvertMat;
+                AnimatedPage.transform.GetChild(1).GetComponent<Image>().material = InvertMat;
                 PlayerPrefs.SetInt("Invert", 1);
             }
             else
@@ -447,6 +479,8 @@ namespace QuranApp
                 mainCam.backgroundColor = Color.white;
                 CurrentPage.material = NormalMat;
                 AnimatedPage.material = NormalMat;
+                AnimatedPage.transform.GetChild(0).GetComponent<Image>().material = NormalMat;
+                AnimatedPage.transform.GetChild(1).GetComponent<Image>().material = NormalMat;
                 PlayerPrefs.SetInt("Invert", 0);
             }
         }
@@ -465,7 +499,7 @@ namespace QuranApp
                     Screen.orientation = ScreenOrientation.Portrait;
                     break;
                 case 2:
-                    Screen.orientation = ScreenOrientation.Landscape;
+                    Screen.orientation = ScreenOrientation.LandscapeLeft;
                     break;
             }
 
@@ -520,7 +554,7 @@ namespace QuranApp
             SuraNumber--;
             CurrentPageNumber = SuraPageNumbers[SuraNumber];
             LoadPage(CurrentPageNumber);
-            SuraNameText.text = BuildSuraButtons.SuraNames[SuraNumber];
+            //SuraNameText.text = BuildSuraButtons.SuraNames[SuraNumber];
             AnimatedPage.sprite = CurrentPage.sprite;
             AnimatedPage.transform.localPosition = pageInitialPosition;
 
