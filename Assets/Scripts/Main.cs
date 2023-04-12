@@ -1,12 +1,11 @@
 ﻿//بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
 
-using UnityEngine;
-using UnityEngine.UI;
 using System;
-using System.IO;
 using System.Collections.Generic;
-using System.IO.Compression;
-using ArabicSupport;
+using System.IO;
+using UnityEngine;
+using UnityEngine.Networking;
+using UnityEngine.UI;
 
 namespace QuranApp
 {
@@ -29,7 +28,7 @@ namespace QuranApp
 
         void Start()
         {
-
+            //PlayerPrefs.SetInt("QuranDownloaded", 0);
             string basmalah = "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ";
             mainCam = GetComponent<Camera>();
             //Debug.Log(ArabicFixer.Fix(basmalah));
@@ -38,7 +37,11 @@ namespace QuranApp
             //DebugText.text = ArabicFixer.Fix("بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ", false, false);
 
             SettingsWindow.SetActive(false);
-            path = Application.persistentDataPath + "/Quran/750/jpg_90/";
+            path = Application.persistentDataPath + "/Quran/"; //"/Quran/750/jpg_90/";
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
             //DebugText.text = path;
             //Data.PathToQuranWithoutTashkeel = Application.persistentDataPath + "/Text/quran-simple-clean.xml";
             //Data.PathToQuranWithTashkeel = Application.persistentDataPath + "/Text/quran-simple.xml";
@@ -68,7 +71,7 @@ namespace QuranApp
             if (PlayerPrefs.GetInt("QuranDownloaded") != 114)
             {
                 Downloader.SetActive(true);
-                DownloadText.text = "(ﺖﻳﺎﺑﺎﺠﻴﻣ 160 ﻢﺠﺣ) ﻊﻗﻮﻤﻟﺍ ﻦﻣ نﺁﺮﻘﻟﺍ تﺎﻔﻠﻣ ﻞﻳﺰﻨﺗ ﻰﻟﺇ ﻖﻴﺒﻄﺘﻟﺍ جﺎﺘﺤﻳ";
+                DownloadText.text = "(ﺖﻳﺎﺑﺎﺠﻴﻣ 172 ﻢﺠﺣ) ﻊﻗﻮﻤﻟﺍ ﻦﻣ نﺁﺮﻘﻟﺍ تﺎﻔﻠﻣ ﻞﻳﺰﻨﺗ ﻰﻟﺇ ﻖﻴﺒﻄﺘﻟﺍ جﺎﺘﺤﻳ";
                 DownloadButton.SetActive(true);
                 DownloadButton.transform.GetChild(0).GetComponent<Text>().text = "ﻖﻓﺍﻮﻣ";
                 DownloadButton.GetComponent<Image>().color = Green;
@@ -76,12 +79,12 @@ namespace QuranApp
                 return;
             }
 
-            if (PlayerPrefs.GetInt("QuranExtracted") != 114)
-            {
-                StartCoroutine(ExtractQuranFiles());
-                Debug.Log("extracting Quran files...");
-                return;
-            }
+            /* if (PlayerPrefs.GetInt("QuranExtracted") != 114)
+             {
+                 StartCoroutine(ExtractQuranFiles());
+                 Debug.Log("extracting Quran files...");
+                 return;
+             }*/
 
             //Quran Loaded
             Debug.Log("Quran finished loading");
@@ -121,7 +124,7 @@ namespace QuranApp
             StopAllCoroutines();
             isDownloading = false;
             Downloader.SetActive(true);
-            DownloadText.text = "(ﺖﻳﺎﺑﺎﺠﻴﻣ 160 ﻢﺠﺣ) ﻊﻗﻮﻤﻟﺍ ﻦﻣ نﺁﺮﻘﻟﺍ تﺎﻔﻠﻣ ﻞﻳﺰﻨﺗ ﻰﻟﺇ ﻖﻴﺒﻄﺘﻟﺍ جﺎﺘﺤﻳ";
+            DownloadText.text = "(ﺖﻳﺎﺑﺎﺠﻴﻣ 172 ﻢﺠﺣ) ﻊﻗﻮﻤﻟﺍ ﻦﻣ نﺁﺮﻘﻟﺍ تﺎﻔﻠﻣ ﻞﻳﺰﻨﺗ ﻰﻟﺇ ﻖﻴﺒﻄﺘﻟﺍ جﺎﺘﺤﻳ";
             DownloadButton.SetActive(true);
             DownloadButton.transform.GetChild(0).GetComponent<Text>().text = "ﻖﻓﺍﻮﻣ";
             DownloadButton.GetComponent<Image>().color = Green;
@@ -129,65 +132,70 @@ namespace QuranApp
         }
         System.Collections.IEnumerator DownloadQuranFiles()
         {
-
+            bool error = false;
             Debug.Log("DownloadQuranFiles()...");
             Downloader.SetActive(true);
+            string savePath = string.Format("{0}/Quran/", Application.persistentDataPath);
+            string downloadLink = "https://voidwave.github.io/Quran/Pages/";
 
-            string downloadLink = "http://voidwave.com/AlQuran.zip";
 
-            // if (DownloadLocation.value == 0)
-            //     downloadLink = "https://images.qurancomplex.gov.sa/publications/a_70_nastaleeq/750.zip";
-            // if (DownloadLocation.value == 1)
-            //     downloadLink = "http://voidwave.com/AlQuran.zip";
-
-            WWW Qlink = new WWW(downloadLink);
-
-            while (!Qlink.isDone)
+            for (int i = 1; i <= 620; i++)
             {
-                //Downloading
-                DownloadText.text = string.Format("ﺖﻳﺎﺑﺎﺠﻴﻣ {1:0.0}/160   ﻒﺤﺼﻤﻟﺍ ﻞﻳﺰﻨﺗ {0:P1}", Qlink.progress, Qlink.progress * 168);
-                ProgressBar.fillAmount = Qlink.progress;
-                yield return new WaitForSeconds(0.1f);
+                DownloadText.text = i + " / 620";
+
+
+                UnityWebRequest request = UnityWebRequestTexture.GetTexture(downloadLink + i.ToString("0000") + ".jpg");
+                yield return request.SendWebRequest();
+
+                if (request.result == UnityWebRequest.Result.Success)
+                {
+                    Texture2D texture = ((DownloadHandlerTexture)request.downloadHandler).texture;
+                    byte[] bytes = texture.EncodeToJPG();
+
+                    string fileName = i.ToString("0000") + ".jpg";
+                    string filePath = Path.Combine(savePath, fileName);
+                    File.WriteAllBytes(filePath, bytes);
+                }
+                else
+                {
+                    Debug.LogError("Error downloading image: " + request.error);
+                    error = true;
+                }
+
+                ProgressBar.fillAmount = (float)i / 620.0f;
             }
 
-            yield return Qlink;
-
-            if (!string.IsNullOrEmpty(Qlink.error))
+            if (!error)
             {
-                CheckQuranFiles();
-
-            }
-            else
-            {
-                //saving zip to path
-                string savePath = string.Format("{0}/Quran.zip", Application.persistentDataPath);
-                System.IO.File.WriteAllBytes(savePath, Qlink.bytes);
-                //Quran compressed file downloaded
                 PlayerPrefs.SetInt("QuranDownloaded", 114);
-                CheckQuranFiles();
+                PlayerPrefs.SetInt("QuranExtracted", 114);
+                InvertToggle(true);
             }
 
-        }
-
-        System.Collections.IEnumerator ExtractQuranFiles()
-        {
-            Debug.Log("ExtractQuranFiles()...");
-            DownloadText.text = "ةﺮﻴﺧﻷﺍ تﺎﺴﻤﻠﻟﺍ";
-            DownloadButton.SetActive(false);
-            yield return new WaitForSeconds(.1f);
-
-            //Unzip file
-            string zipPath = string.Format("{0}/Quran.zip", Application.persistentDataPath);
-            var dir = new DirectoryInfo(Application.persistentDataPath + "/Quran/");
-            if (dir.Exists)
-                dir.Delete(true);
-
-            ZipFile.ExtractToDirectory(zipPath, Application.persistentDataPath + "/Quran/");
-            //System.IO.Compression.
-            PlayerPrefs.SetInt("QuranExtracted", 114);
-            File.Delete(zipPath);
             CheckQuranFiles();
+
+
         }
+
+        /* System.Collections.IEnumerator ExtractQuranFiles()
+         {
+             Debug.Log("ExtractQuranFiles()...");
+             DownloadText.text = "ةﺮﻴﺧﻷﺍ تﺎﺴﻤﻠﻟﺍ";
+             DownloadButton.SetActive(false);
+             yield return new WaitForSeconds(.1f);
+
+             //Unzip file
+             string zipPath = string.Format("{0}/Quran.zip", Application.persistentDataPath);
+             var dir = new DirectoryInfo(Application.persistentDataPath + "/Quran/");
+             if (dir.Exists)
+                 dir.Delete(true);
+
+             ZipFile.ExtractToDirectory(zipPath, Application.persistentDataPath + "/Quran/");
+             //System.IO.Compression.
+             PlayerPrefs.SetInt("QuranExtracted", 114);
+             File.Delete(zipPath);
+             CheckQuranFiles();
+         }*/
         private bool touching = false;
         private Vector2 startTouchPos, endTouchPos;
         private float touchTime = 0;
@@ -300,6 +308,7 @@ namespace QuranApp
         //         touchTime = 0;
         //     }
         // }
+        public float swipeTriggerDistance = 200;
         private void SwipeInput()
         {
             if (SettingsWindow.activeSelf)
@@ -328,14 +337,14 @@ namespace QuranApp
                     touching = false;
                     //Debug.Log($"End Pos: {endTouchPos}");
 
-                    if (startTouchPos.y < 200 || endTouchPos.y < 200)
+                    if (startTouchPos.y < swipeTriggerDistance || endTouchPos.y < swipeTriggerDistance)
                         return;
 
-                    if (CurrentPageRectTransform.localPosition.x > 200)
+                    if (CurrentPageRectTransform.localPosition.x > swipeTriggerDistance)
                         LoadNextPage();
-                    if (CurrentPageRectTransform.localPosition.x < -200)
+                    if (CurrentPageRectTransform.localPosition.x < -swipeTriggerDistance)
                         LoadPreviousPage();
-                    
+
                 }
                 //touchTime = 0;
             }
@@ -626,7 +635,6 @@ namespace QuranApp
 
             return results;
         }
-
 
     }
 }
