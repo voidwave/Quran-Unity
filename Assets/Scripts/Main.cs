@@ -18,7 +18,8 @@ namespace QuranApp
         public RectTransform CurrentPageRectTransform;
         public Toggle invertToggleUI;
         public Material NormalMat, InvertMat;
-        public GameObject SettingsWindow, PreviousButtonGO, NextButtonGO, Downloader, DownloadButton;
+        public GameObject SettingsWindow, Downloader, DownloadButton;
+
         public Transform NavParent;
         private Rect rect;
         private Vector2 pivot;
@@ -31,33 +32,21 @@ namespace QuranApp
             //PlayerPrefs.SetInt("QuranDownloaded", 0);
             string basmalah = "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ";
             mainCam = GetComponent<Camera>();
-            //Debug.Log(ArabicFixer.Fix(basmalah));
-            //Debug.Log(ArabicFixer.Fix(basmalah, true, true));
+
             Application.targetFrameRate = 60;
-            //DebugText.text = ArabicFixer.Fix("بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ", false, false);
+
 
             SettingsWindow.SetActive(false);
-            path = Application.persistentDataPath + "/Quran/"; //"/Quran/750/jpg_90/";
+            path = Application.persistentDataPath + "/Quran/";
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
             }
-            //DebugText.text = path;
-            //Data.PathToQuranWithoutTashkeel = Application.persistentDataPath + "/Text/quran-simple-clean.xml";
-            //Data.PathToQuranWithTashkeel = Application.persistentDataPath + "/Text/quran-simple.xml";
+
+            Debug.Log(path);
+            Debug.Log(Directory.GetFiles(path).Length);
             pivot = CurrentPage.sprite.pivot;
             rect = CurrentPage.sprite.rect;
-            //pageInitialPosition = new Vector3(0,-960,0);
-            //Initilize Quran Text from XML
-            //Data.Init();
-            //Debug.Log($"Quran Sura Count: {Data.QuranWithTashkeel.Count}");
-            //SelectSuraToPrint();
-            //SearchForText();
-            ////Download test
-            ////QDownloader.DownloadAll(QDownloader.QuranArabicURL, 60, 63, QDownloader.QuranSaveToPath);
-            //Console.ReadLine();
-            // PlayerPrefs.SetInt("QuranDownloaded", 0);
-            // PlayerPrefs.SetInt("QuranExtracted", 0);
 
             CheckQuranFiles();
 
@@ -68,7 +57,7 @@ namespace QuranApp
         {
             Debug.Log("Checking Files...");
 
-            if (PlayerPrefs.GetInt("QuranDownloaded") != 114)
+            if (Directory.GetFiles(path).Length != 620)
             {
                 Downloader.SetActive(true);
                 DownloadText.text = "(ﺖﻳﺎﺑﺎﺠﻴﻣ 172 ﻢﺠﺣ) ﻊﻗﻮﻤﻟﺍ ﻦﻣ نﺁﺮﻘﻟﺍ تﺎﻔﻠﻣ ﻞﻳﺰﻨﺗ ﻰﻟﺇ ﻖﻴﺒﻄﺘﻟﺍ جﺎﺘﺤﻳ";
@@ -141,7 +130,6 @@ namespace QuranApp
 
             for (int i = 1; i <= 620; i++)
             {
-                DownloadText.text = i + " / 620";
 
 
                 UnityWebRequest request = UnityWebRequestTexture.GetTexture(downloadLink + i.ToString("0000") + ".jpg");
@@ -163,12 +151,13 @@ namespace QuranApp
                 }
 
                 ProgressBar.fillAmount = (float)i / 620.0f;
+                DownloadText.text = (((float)i / 620.0f) * 100).ToString("0") + "%";
             }
 
             if (!error)
             {
-                PlayerPrefs.SetInt("QuranDownloaded", 114);
-                PlayerPrefs.SetInt("QuranExtracted", 114);
+                // PlayerPrefs.SetInt("QuranDownloaded", 114);
+                // PlayerPrefs.SetInt("QuranExtracted", 114);
                 InvertToggle(true);
             }
 
@@ -384,7 +373,7 @@ namespace QuranApp
             //load user settings
             InvertToggle(PlayerPrefs.GetInt("Invert") == 1);
             //SwitchRotation(PlayerPrefs.GetInt("Orientation"));
-            SwitchNavigation(PlayerPrefs.GetInt("Nav"));
+            //SwitchNavigation(PlayerPrefs.GetInt("Nav"));
 
             //adjust settings state in ui
             invertToggleUI.isOn = PlayerPrefs.GetInt("Invert") == 1 ? true : false;
@@ -460,7 +449,20 @@ namespace QuranApp
             //tempPos.y = -960;
             CurrentPageRectTransform.position = tempPos;
 
+            // if (changeScrollValue)
+            //     Scrollbar.value = (float)(CurrentPageNumber / (MAXPAGE + 1.0f));
+
         }
+
+        // public void LoadPage(Scrollbar scrollbar)
+        // {
+        //     CurrentPageNumber = (int)(scrollbar.value * MAXPAGE + 1.0f);
+
+        //     //Debug.Log("Scrollbar called: " + page);
+        //     LoadPage(CurrentPageNumber, 0, false);
+        //     AnimatedPage.sprite = CurrentPage.sprite;
+        //     AnimatedPage.transform.localPosition = pageInitialPosition;
+        // }
 
         public void SettingsToggle()
         {
@@ -517,33 +519,33 @@ namespace QuranApp
 
 
 
-        private bool UseSwipe = true;
-        public void SwitchNavigation(int nav)
-        {
-            PlayerPrefs.SetInt("Nav", nav);
+        //private bool UseSwipe = true;
+        // public void SwitchNavigation(int nav)
+        // {
+        //     PlayerPrefs.SetInt("Nav", nav);
 
-            switch (nav)
-            {
-                case 0:
-                    PreviousButtonGO.SetActive(true);
-                    NextButtonGO.SetActive(true);
-                    UseSwipe = true;
-                    break;
-                case 1:
+        //     switch (nav)
+        //     {
+        //         case 0:
+        //             PreviousButtonGO.SetActive(true);
+        //             NextButtonGO.SetActive(true);
+        //             UseSwipe = true;
+        //             break;
+        //         case 1:
 
-                    PreviousButtonGO.SetActive(true);
-                    NextButtonGO.SetActive(true);
-                    UseSwipe = false;
+        //             PreviousButtonGO.SetActive(true);
+        //             NextButtonGO.SetActive(true);
+        //             UseSwipe = false;
 
-                    break;
-                case 2:
-                    PreviousButtonGO.SetActive(false);
-                    NextButtonGO.SetActive(false);
-                    UseSwipe = true;
-                    break;
-            }
+        //             break;
+        //         case 2:
+        //             PreviousButtonGO.SetActive(false);
+        //             NextButtonGO.SetActive(false);
+        //             UseSwipe = true;
+        //             break;
+        //     }
 
-        }
+        // }
         private int[] SuraPageNumbers = {
             004,005,053,080,109,131,154,180,190,211,
             224,238,252,258,264,270,285,296,308,315,
